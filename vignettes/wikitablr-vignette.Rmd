@@ -32,18 +32,22 @@ There is much conjunction within these categories, and there are functions that 
 ```{r}
 #for this vignette I will be using the wikipedia page of Bob's Burgers episodes
 #this is a table of all episodes in season 10
-read_wikitables("https://en.wikipedia.org/wiki/List_of_Bob%27s_Burgers_episodes") %>%
+bobs_burgers <- read_wikitables("https://en.wikipedia.org/wiki/List_of_Bob%27s_Burgers_episodes")
+
+bobs_burgers %>%
+  pull(table) %>%
   pluck(11) %>% 
   head(3)
 ```
 
 
-However, users do have the option to read and clean their table seperately. In this vignette, I detail all of my cleaning functions, and show how they are used in `read_wiki_table()`.
+However, users do have the option to read and clean their table separately. In this vignette, I detail all of my cleaning functions, and show how they are used in `read_wiki_table()`.
 
 A table can be read in without cleaning using `read_wiki_raw()`.
 
 ```{r}
-episodes <- read_wikitables("https://en.wikipedia.org/wiki/List_of_Bob%27s_Burgers_episodes") %>%
+episodes <- bobs_burgers %>%
+  pull(table) %>%
   pluck(11)
 head(episodes, 3)
 ```
@@ -64,6 +68,32 @@ And compare it to the cleaned column names.
 episodes <- clean_wiki_names(episodes)
 names(episodes)
 ```
+
+If you want to clean the names of all the tables
+
+```{r}
+episode_list <- bobs_burgers %>%
+  filter(stringr::str_detect(class, "wikiepisodetable"))
+
+all_episodes <- episode_list %>%
+  pull(table) %>%
+  bind_rows()
+```
+
+```{r}
+episode_list %>%
+  mutate(clean_table = map(table, clean_wiki_names))
+```
+
+```{r}
+episode_list %>%
+  mutate(
+    clean_table = table %>%
+      map(clean_wiki_names) %>%
+      map(special_to_na)
+  )
+```
+
 
 
 #### Add NAs to data
