@@ -19,19 +19,22 @@ tables <- urls %>%
 test_that("clean_wiki_names works", {
 
   expect_is(tables, "list")
+  #error
   expect_length(tables, 13)
+  #error
   expect_true(all(unlist(map(tables, class)) == "data.frame"))
 
-  tables_clean <- clean_wiki_names(tables)
+  colleges <- read_wikitables("https://en.wikipedia.org/wiki/List_of_colleges_and_universities_in_Massachusetts")
+  colleges1_clean <- clean_wiki_names(colleges[[3]][[1]])
 
   # test clean_wiki_names()
   # test that column names clean as expected
   vars <- c("school", "location", "control", "type", "enrollment", "founded", "accreditation")
-  expect_equal(names(tables_clean[[1]]), vars)
+  expect_equal(names(colleges1_clean), vars)
 
   # test that correctly passes arguments to janitor::clean_names()
   expect_equal(
-    names(clean_wiki_names(tables[1], "all_caps") %>% pluck(1)),
+    (names(clean_wiki_names(colleges[[3]][[1]], "all_caps"))),
     toupper(vars)
   )
 
