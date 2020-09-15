@@ -22,65 +22,47 @@ library(purrr)
 library(stringr)
 ```
 
-There are two main families of functions in `wikitablr`:
+The primary goal of the`wikitablr`package is to facilitate the process of working with data from wikipedia tables in R. The functions in this package allow the user to read in all tables on a wikipedia page given a url, and then apply specific cleaning functions to individual tables, subsets of tables, or all of the tables.
 
-1. Those that read in a table and
-2. Those that clean a table
+## Reading in Tables
 
-There is much conjunction within these categories, and there are functions that do both. These are `read_all_tables()`, which reads in and cleans every table at the specified Wikipedia page and returns them in a list, and `read_wiki_table()`, which reads in and cleans a specified table (designated by the table number).
+For this vignette we will be use the wikipedia page of [Bob's Burgers episodes]("https://en.wikipedia.org/wiki/List_of_Bob%27s_Burgers_episodes"). 
 
+The `read_wikitables()`function takes in a wikipedia url and outputs a data table with each row corresponding to one table on the wikipedia page. The tables themselves are stored in the 'table' column. The other columns provide additional information about each table including the table number, the time retrieved, and the storage space each table takes up. 
 ```{r}
-#for this vignette I will be using the wikipedia page of Bob's Burgers episodes
-#this is a table of all episodes in season 10
 bobs_burgers <- read_wikitables("https://en.wikipedia.org/wiki/List_of_Bob%27s_Burgers_episodes")
-
-bobs_burgers %>%
-  pull(table) %>%
-  pluck(11) %>% 
-  head(3)
+bobs_burgers
 ```
+## Cleaning Functions
 
-
-However, users do have the option to read and clean their table separately. In this vignette, I detail all of my cleaning functions, and show how they are used in `read_wiki_table()`.
-
-A table can be read in without cleaning using `read_wiki_raw()`.
-
-```{r}
-episodes <- bobs_burgers %>%
-  pull(table) %>%
-  pluck(11)
-head(episodes, 3)
-```
+Each cleaning function takes in an individual table and outputs a modified table. We can apply the cleaning functions to an individual table by first extracting the table, or we can map the cleaning functions over a list of tables.
 
 #### Clean column names
 
 `clean_wiki_names()` cleans the column names of a dataframe; it removes footnotes and special characters, and converts letter cases. `clean_wiki_names()` utilizes the functionality of `janitor::clean_names()` and can convert to any case (default is snake_case).
 
-Here, we look at the column names of the uncleaned data:
+If we want to work with one table individually, we can extract it and then apply `clean_wiki_names()`. For example, if we want to clean the names of the 11th table on the Bob's Burgers page, it will look like this.
 
 ```{r}
-names(episodes)
+# extract table 11
+episodes <- bobs_burgers %>%
+   pull(table) %>%
+   pluck(11) 
+episodes
+```
+```{r}
+# clean names
+episodes_clean <- clean_wiki_names(table11)
+episodes_clean
 ```
 
-And compare it to the cleaned column names.
-
+If we want to clean the names of all of the tables that list episodes in a season, we could do so by mapping `clean_wiki_names()` over all of the tables. This will output a table with an added column `clean_table` that contains the modified tables with clean names.
 ```{r}
-episodes <- clean_wiki_names(episodes)
-names(episodes)
-```
-
-If you want to clean the names of all the tables
-
-```{r}
+# filter only tables that contain episodes
 episode_list <- bobs_burgers %>%
   filter(stringr::str_detect(class, "wikiepisodetable"))
 
-all_episodes <- episode_list %>%
-  pull(table) %>%
-  bind_rows()
-```
-
-```{r}
+# map clean_wiki_names() over all tables
 episode_list %>%
   mutate(clean_table = map(table, clean_wiki_names))
 ```
@@ -95,15 +77,14 @@ episode_list %>%
 ```
 
 
-
 #### Add NAs to data
-`add_na()` takes blank cells, solitary special characters, and any designated string, and converts them to `NA`. This can be utilized on the table for Bob's Burgers' current season, which has some "TBA" and "TBD" values for unreleased episodes. Using `add_na()` we can convert these to `r NA`:
+`empty_to_na()` takes blank cells, solitary special characters, and any designated string, and converts them to `NA`. This can be utilized on the table for Bob's Burgers' current season, which has some "TBA" and "TBD" values for unreleased episodes. Using `empty_to_na()` we can convert these to `r NA`:
 
 ```{r}
-episodes <- special_to_na(episodes, to_na = c("TBA", "TBD"))
+episodes <- empty_to_na(episodes, to_na = c("TBA", "TBD"))
 
 tail(episodes, 3)
-  ```
+```
 
 #### Remove footnotes
 `remove_footnotes()` does just that! Wikipedia's footnotes are contained within brackets ([ ]), so this function removes anything contained in brackets (as well as the brackets themselves) from the data.
