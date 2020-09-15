@@ -2,27 +2,18 @@
 % Please edit documentation in R/clean_table.R
 \name{remove_footnotes}
 \alias{remove_footnotes}
-\alias{remove_footnotes_single}
 \title{remove_footnotes}
 \usage{
-remove_footnotes_single(wiki_table, ...)
-
-remove_footnotes(wiki_tables, ...)
+remove_footnotes(wiki_table, ...)
 }
 \arguments{
 \item{wiki_table}{a dataframe}
 
 \item{...}{arguments passed to \code{\link{add_na}}}
-
-\item{wiki_tables}{A list of dataframes}
 }
 \value{
 a cleaned dataframe
-
-Cleaned dataframe
 }
 \description{
-remove_footnotes
-
 remove_footnotes
 }

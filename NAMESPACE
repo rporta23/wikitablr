@@ -3,6 +3,7 @@
 export(clean_rows)
 export(clean_wiki_names)
 export(convert_types)
+export(empty_to_na)
 export(read_wikinodes)
 export(read_wikitables)
 export(remove_footnotes)

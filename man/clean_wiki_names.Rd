@@ -2,25 +2,24 @@
 % Please edit documentation in R/clean_table.R
 \name{clean_wiki_names}
 \alias{clean_wiki_names}
-\alias{clean_wiki_names_single}
 \title{clean_wiki_names}
 \usage{
-clean_wiki_names_single(wiki_table, ...)
-
-clean_wiki_names(wiki_tables, ...)
+clean_wiki_names(wiki_table, ...)
 }
 \arguments{
 \item{wiki_table}{A dataframe for which the column names will be cleaned}
 
 \item{...}{arguments passed to \code{\link[janitor]{clean_names}}}
-
-\item{wiki_tables}{a list of dataframes for which the column names will be cleaned}
 }
 \value{
 a cleaned dataframe
-
-a list of cleaned dataframes
 }
 \description{
 clean_wiki_names
+}
+\examples{
+url <- "https://en.wikipedia.org/wiki/ASCII"
+raw <- read_wikitables(url)
+
+# clean
 }
