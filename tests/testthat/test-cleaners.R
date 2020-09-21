@@ -95,9 +95,9 @@ test_that("clean_wiki_names works", {
   ))
 
   # see if first column is converted to NA
-  # ERROR: argument is not interpretable as logical
+  ## doesn't work and I'm not sure why
   expect_true(
-    dummy_data %>%
+    data <- dummy_data %>%
       empty_to_na(to_na = "N/A") %>%
       pluck(1) %>%
       pull(first) %>%

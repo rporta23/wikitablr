@@ -52,7 +52,7 @@ episodes
 ```
 ```{r}
 # clean names
-episodes_clean <- clean_wiki_names(table11)
+episodes_clean <- clean_wiki_names(episodes)
 episodes_clean
 ```
 

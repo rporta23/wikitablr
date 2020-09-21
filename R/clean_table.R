@@ -36,9 +36,13 @@ clean_wiki_names <- function(wiki_table, ...) {
 #' @return Cleaned dataframe
 
 empty_to_na <- function(wiki_table, to_na = ""){
-  #converts specified characters to NA
-  wiki_table <- as.data.frame(purrr::map(wiki_table, function(x){
-    is.na(x) <- which(x %in% c("", to_na));x}))
+  wiki_table %>%
+    dplyr::mutate_if(
+      is.character, list(~dplyr::na_if(., to_na))
+    )
+  # #converts specified characters to NA
+  # wiki_table <- as.data.frame(purrr::map(wiki_table, function(x){
+  #   is.na(x) <- which(x %in% c("", to_na));x}))
 
   # if(to_na){
   #   #converts solitary special characters to NA
