@@ -55,6 +55,7 @@ test_that("clean_wiki_names works", {
     "N/A", "ten", "eleven"
   ))
 
+  # ERROR: No `clean_names()` method exists for the class list
   expect_false(
     dummy_data_1 %>%
       clean_wiki_names() %>%
@@ -66,6 +67,7 @@ test_that("clean_wiki_names works", {
 
   # test clean_rows()
   # test that duplicate of header is removed (this one has a double header)
+  # this needs to be revised, and I'm not sure how to extract the table we want
   expect_lt(
     tables %>%
       clean_rows() %>%
@@ -82,7 +84,7 @@ test_that("clean_wiki_names works", {
 #    purrr::pluck(1)
 #  expect_lt(nrow(clean_rows(marvel1)), nrow(marvel1))
 
-  # test add_na()
+  # test empty_to_na()
   ## I'm confused about applying these functions to the dummy data because
   ## they are supposed to take in a list of data frames
   dummy_data <- list(tibble::tribble(
@@ -93,18 +95,20 @@ test_that("clean_wiki_names works", {
   ))
 
   # see if first column is converted to NA
+  # ERROR: argument is not interpretable as logical
   expect_true(
     dummy_data %>%
-      add_na(to_na = "N/A") %>%
+      empty_to_na(to_na = "N/A") %>%
       pluck(1) %>%
       pull(first) %>%
       is.na() %>%
       all()
   )
 
-  # test for special_to_na = FALSE-- doesn't work
+  # test special_to_na()
+  # ERROR: Error in UseMethod("tbl_vars") : no applicable method for 'tbl_vars' applied to an object of class "list"
   expect_true(
-    add_na(dummy_data, special_to_na = FALSE) %>%
+    special_to_na(dummy_data) %>%
       pluck(1) %>%
       pull(1) %>%
       stringr::str_detect("\\?") %>%
@@ -139,6 +143,7 @@ test_that("special_to_na works", {
     purrr::pluck(2)
 
   # test that special_to_na = FALSE returns the special character
+  # I don't understand this test-- is it still necessary now that special_to_na() is now a function, not an argument?
   expect_false(
     ascii_table %>%
       dplyr::filter(dec == "33") %>%
