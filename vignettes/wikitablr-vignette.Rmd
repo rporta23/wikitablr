@@ -81,6 +81,7 @@ episode_list %>%
 `empty_to_na()` takes blank cells, solitary special characters, and any designated string, and converts them to `NA`. This can be utilized on the table for Bob's Burgers' current season, which has some "TBA" and "TBD" values for unreleased episodes. Using `empty_to_na()` we can convert these to `r NA`:
 
 ```{r}
+# not sure which table has "TBA" and "TBD"
 episodes <- empty_to_na(episodes, to_na = c("TBA", "TBD"))
 
 tail(episodes, 3)

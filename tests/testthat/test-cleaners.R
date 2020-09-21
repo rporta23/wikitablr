@@ -87,19 +87,19 @@ test_that("clean_wiki_names works", {
   # test empty_to_na()
   ## I'm confused about applying these functions to the dummy data because
   ## they are supposed to take in a list of data frames
-  dummy_data <- list(tibble::tribble(
+  dummy_data <- tibble::tribble(
     ~first, ~second, ~third,
     "?", "two", "three",
     "_", "five", "7",
     "N/A", "ten", "eleven"
-  ))
+  )
 
   # see if first column is converted to NA
   ## doesn't work and I'm not sure why
   expect_true(
     data <- dummy_data %>%
-      empty_to_na(to_na = "N/A") %>%
-      pluck(1) %>%
+      empty_to_na(to_na = "?") %>%
+      #pluck(1) %>%
       pull(first) %>%
       is.na() %>%
       all()
