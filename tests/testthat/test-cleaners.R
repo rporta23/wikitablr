@@ -19,19 +19,22 @@ tables <- urls %>%
 test_that("clean_wiki_names works", {
 
   expect_is(tables, "list")
+  #error
   expect_length(tables, 13)
+  #error
   expect_true(all(unlist(map(tables, class)) == "data.frame"))
 
-  tables_clean <- clean_wiki_names(tables)
+  colleges <- read_wikitables("https://en.wikipedia.org/wiki/List_of_colleges_and_universities_in_Massachusetts")
+  colleges1_clean <- clean_wiki_names(colleges[[3]][[1]])
 
   # test clean_wiki_names()
   # test that column names clean as expected
   vars <- c("school", "location", "control", "type", "enrollment", "founded", "accreditation")
-  expect_equal(names(tables_clean[[1]]), vars)
+  expect_equal(names(colleges1_clean), vars)
 
   # test that correctly passes arguments to janitor::clean_names()
   expect_equal(
-    names(clean_wiki_names(tables[1], "all_caps") %>% pluck(1)),
+    (names(clean_wiki_names(colleges[[3]][[1]], "all_caps"))),
     toupper(vars)
   )
 
@@ -52,6 +55,7 @@ test_that("clean_wiki_names works", {
     "N/A", "ten", "eleven"
   ))
 
+  # ERROR: No `clean_names()` method exists for the class list
   expect_false(
     dummy_data_1 %>%
       clean_wiki_names() %>%
@@ -63,6 +67,7 @@ test_that("clean_wiki_names works", {
 
   # test clean_rows()
   # test that duplicate of header is removed (this one has a double header)
+  # this needs to be revised, and I'm not sure how to extract the table we want
   expect_lt(
     tables %>%
       clean_rows() %>%
@@ -79,29 +84,31 @@ test_that("clean_wiki_names works", {
 #    purrr::pluck(1)
 #  expect_lt(nrow(clean_rows(marvel1)), nrow(marvel1))
 
-  # test add_na()
+  # test empty_to_na()
   ## I'm confused about applying these functions to the dummy data because
   ## they are supposed to take in a list of data frames
-  dummy_data <- list(tibble::tribble(
+  dummy_data <- tibble::tribble(
     ~first, ~second, ~third,
     "?", "two", "three",
     "_", "five", "7",
     "N/A", "ten", "eleven"
-  ))
+  )
 
   # see if first column is converted to NA
+  ## doesn't work and I'm not sure why
   expect_true(
-    dummy_data %>%
-      add_na(to_na = "N/A") %>%
-      pluck(1) %>%
+    data <- dummy_data %>%
+      empty_to_na(to_na = "?") %>%
+      #pluck(1) %>%
       pull(first) %>%
       is.na() %>%
       all()
   )
 
-  # test for special_to_na = FALSE-- doesn't work
+  # test special_to_na()
+  # ERROR: Error in UseMethod("tbl_vars") : no applicable method for 'tbl_vars' applied to an object of class "list"
   expect_true(
-    add_na(dummy_data, special_to_na = FALSE) %>%
+    special_to_na(dummy_data) %>%
       pluck(1) %>%
       pull(1) %>%
       stringr::str_detect("\\?") %>%
@@ -136,6 +143,7 @@ test_that("special_to_na works", {
     purrr::pluck(2)
 
   # test that special_to_na = FALSE returns the special character
+  # I don't understand this test-- is it still necessary now that special_to_na() is now a function, not an argument?
   expect_false(
     ascii_table %>%
       dplyr::filter(dec == "33") %>%

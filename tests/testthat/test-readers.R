@@ -10,7 +10,6 @@ urls <- c(
 )
 
 test_that("read_wikinodes works", {
-  # read_wiki_raw tests
   # Reads first presidents table with all default parameters
   raw <- urls %>%
     map(read_wikinodes)
@@ -49,7 +48,7 @@ test_that("read_wikitables works", {
   raw <- urls %>%
     map(read_wikitables)
 
-  # test that each item is a list
+  # test that each item is a data frame
   expect_is(raw, "list")
   expect_length(raw, 3)
   expect_true(
