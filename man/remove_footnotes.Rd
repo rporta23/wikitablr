@@ -9,7 +9,7 @@ remove_footnotes(wiki_table, ...)
 \arguments{
 \item{wiki_table}{a dataframe}
 
-\item{...}{arguments passed to \code{\link{add_na}}}
+\item{...}{arguments passed to \code{\link{empty_to_na}}}
 }
 \value{
 a cleaned dataframe

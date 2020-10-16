@@ -1,7 +1,7 @@
 Package: wikitablr
 Type: Package
 Title: Simple Reader for Wikipedia's Tables
-Version: 0.1.0.9003
+Version: 0.1.0.9004
 Authors@R: c(
   person("Jessica", "Keast", email = "jnkeast@gmail.com", role = c("aut", "cre")), 
   person("Natalia", "Iannucci", email = "iannuccinatalia@gmail.com", 

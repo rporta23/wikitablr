@@ -2,20 +2,23 @@
 % Please edit documentation in R/clean_table.R
 \name{empty_to_na}
 \alias{empty_to_na}
+\alias{special_to_na}
 \title{empty_to_na}
 \usage{
-empty_to_na(wiki_table, to_na = "")
+empty_to_na(wiki_table)
+
+special_to_na(wiki_table)
 }
 \arguments{
 \item{wiki_table}{A dataframe}
-
-\item{to_na}{A character string that when solitary in a dataframe cell is to be converted to NA. Default is "".}
-
-\item{special_to_na}{A boolean denoting whether solitary special characters in dataframe cells are to be converted to NA. Default is TRUE.}
 }
 \value{
-Cleaned dataframe
+A dataframe
 }
 \description{
-empty_to_na
+Convert empty strings and special characters to NA
+}
+\examples{
+empty_to_na(data.frame(x = ""))
+special_to_na(data.frame(x = c("?", "le#t"), y = c("hi", "8\%")))
 }

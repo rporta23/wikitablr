@@ -29,49 +29,35 @@ clean_wiki_names <- function(wiki_table, ...) {
 
 #' @name empty_to_na
 #' @title empty_to_na
+#' @description Convert empty strings and special characters to NA
 #' @export
 #' @param wiki_table A dataframe
-#' @param to_na A character string that when solitary in a dataframe cell is to be converted to NA. Default is "".
-#' @param special_to_na A boolean denoting whether solitary special characters in dataframe cells are to be converted to NA. Default is TRUE.
-#' @return Cleaned dataframe
+#' @return A dataframe
+#' @examples
+#' empty_to_na(data.frame(x = ""))
 
-empty_to_na <- function(wiki_table, to_na = ""){
+empty_to_na <- function(wiki_table){
   wiki_table %>%
     dplyr::mutate_if(
-      is.character, list(~dplyr::na_if(., to_na))
+      is.character, list(~dplyr::na_if(., ""))
     )
-  # #converts specified characters to NA
-  # wiki_table <- as.data.frame(purrr::map(wiki_table, function(x){
-  #   is.na(x) <- which(x %in% c("", to_na));x}))
-
-  # if(to_na){
-  #   #converts solitary special characters to NA
-  #   wiki_table <- as.data.frame(
-  #     purrr::map(wiki_table, function(x) {
-  #       is.na(x) <- which(stringr::str_detect(x, "\\A[^a-zA-Z0-9]{1}$"))
-  #       x
-  #       }
-    #   )
-    # )
-  # }
-
-  return(wiki_table)
 }
 
-
-#' @rdname special_to_na
-#' @param wiki_table a dataframe
+#' @rdname empty_to_na
 #' @export
-#' @return a cleaned dataframe
+#' @examples
+#' special_to_na(data.frame(x = c("?", "le#t"), y = c("hi", "8%")))
 
 special_to_na <- function(wiki_table) {
   wiki_table %>%
     dplyr::mutate_if(
-      is.character, stringr::str_replace_all,
+      is.character,
+      stringr::str_replace_all,
       pattern = "\\A[^a-zA-Z0-9]{1}$", replacement = "<special_char/>"
     ) %>%
     dplyr::mutate_if(
-      is.character, list(~dplyr::na_if(., "<special_char/>"))
+      is.character,
+      list(~dplyr::na_if(., "<special_char/>"))
     )
 }
 
@@ -79,12 +65,13 @@ special_to_na <- function(wiki_table) {
 #' @name remove_footnotes
 #' @title remove_footnotes
 #' @param wiki_table a dataframe
-#' @param ... arguments passed to \code{\link{add_na}}
+#' @param ... arguments passed to \code{\link{empty_to_na}}
 #' @export
 #' @return a cleaned dataframe
 
-remove_footnotes <- function(wiki_table, ...){
-  as.data.frame(purrr::map(wiki_table, ~stringr::str_remove_all(.x, "\\[.*]"))) %>%
+remove_footnotes <- function(wiki_table, ...) {
+  wiki_table %>%
+    purrr::map(~stringr::str_remove_all(.x, "\\[.*]")) %>%
     empty_to_na(...) %>%
     janitor::remove_empty(which = "cols")
 }

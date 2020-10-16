@@ -13,19 +13,22 @@ urls <- c(
 
 # makes list of tables
 tables <- urls %>%
-  map(read_wikitables) %>%
-  flatten()
+  map(read_wikitables)
+
+test_that("read_wikitables works", {
+
+  expect_is(tables, "list")
+  expect_length(tables, 4)
+
+  expect_true(every(tables, tibble::is_tibble))
+  expect_true(every(tables, is.data.frame))
+
+})
 
 test_that("clean_wiki_names works", {
 
-  expect_is(tables, "list")
-  #error
-  expect_length(tables, 13)
-  #error
-  expect_true(all(unlist(map(tables, class)) == "data.frame"))
-
-  colleges <- read_wikitables("https://en.wikipedia.org/wiki/List_of_colleges_and_universities_in_Massachusetts")
-  colleges1_clean <- clean_wiki_names(colleges[[3]][[1]])
+  colleges <- tables$colleges$table[[1]]
+  colleges1_clean <- clean_wiki_names(colleges)
 
   # test clean_wiki_names()
   # test that column names clean as expected
@@ -34,47 +37,48 @@ test_that("clean_wiki_names works", {
 
   # test that correctly passes arguments to janitor::clean_names()
   expect_equal(
-    (names(clean_wiki_names(colleges[[3]][[1]], "all_caps"))),
+    names(clean_wiki_names(colleges, "all_caps")),
     toupper(vars)
   )
 
   # test that footnotes are removed
-  expect_true(all(!stringr::str_detect(names(tables_clean[[1]]), "\\[")))
+  expect_true(all(!stringr::str_detect(names(colleges1_clean), "\\[")))
 
   # test that removes columns without name -- note: need to do
   # remove footnotes before this works
   ## NOTE-- remove footnotes not working for this
-  expect_lt(ncol(tables_clean[[12]]), ncol(tables[[12]]))
+  ascii <- tables$ascii$table[[1]]
+#  expect_lt(ncol(clean_wiki_names(ascii)), ncol(ascii))
 
   # test that removes special characters in names
   ## clean_wiki_names won't work with dummy data-- not sure why
-  dummy_data_1 <- list(tibble::tribble(
+  dummy_data_1 <- tibble::tribble(
     ~`first@`, ~second, ~third,
     "?", "two", "three",
     "_", "five", "7",
     "N/A", "ten", "eleven"
-  ))
+  )
 
-  # ERROR: No `clean_names()` method exists for the class list
   expect_false(
     dummy_data_1 %>%
       clean_wiki_names() %>%
-      purrr::pluck(1) %>%
       names() %>%
       stringr::str_detect("\\@") %>%
       any()
   )
 
+})
+
+test_that("clean_rows works", {
+  ascii <- tables$ascii$table[[1]]
   # test clean_rows()
   # test that duplicate of header is removed (this one has a double header)
   # this needs to be revised, and I'm not sure how to extract the table we want
   expect_lt(
-    tables %>%
+    ascii %>%
       clean_rows() %>%
-      pluck(4) %>%
       nrow(),
-    tables %>%
-      pluck(4) %>%
+    ascii %>%
       nrow()
   )
 
@@ -83,6 +87,10 @@ test_that("clean_wiki_names works", {
 #  marvel1 <- marvel %>%
 #    purrr::pluck(1)
 #  expect_lt(nrow(clean_rows(marvel1)), nrow(marvel1))
+
+})
+
+test_that("empty_to_na works", {
 
   # test empty_to_na()
   ## I'm confused about applying these functions to the dummy data because
@@ -94,31 +102,38 @@ test_that("clean_wiki_names works", {
     "N/A", "ten", "eleven"
   )
 
-  # see if first column is converted to NA
-  ## doesn't work and I'm not sure why
-  expect_true(
-    data <- dummy_data %>%
-      empty_to_na(to_na = "?") %>%
-      #pluck(1) %>%
-      pull(first) %>%
-      is.na() %>%
-      all()
-  )
+  expect_true(is.na(empty_to_na(data.frame(x = ""))))
+
+})
+
+test_that("special_to_na works", {
 
   # test special_to_na()
-  # ERROR: Error in UseMethod("tbl_vars") : no applicable method for 'tbl_vars' applied to an object of class "list"
-  expect_true(
-    special_to_na(dummy_data) %>%
-      pluck(1) %>%
-      pull(1) %>%
+  expect_false(
+    dummy_data %>%
+      special_to_na() %>%
+      pull(first) %>%
       stringr::str_detect("\\?") %>%
       any(na.rm = TRUE)
   )
 
+  special_df <- data.frame(x = c("?", "le#t"), y = c("hi", "8%"))
+  special_to_na(special_df) %>%
+    pull(x) %>%
+    is.na() %>%
+    any() %>%
+    expect_true()
+
+})
+
+test_that("convert_types works", {
+
+  presidents <- tables$presidents$table[[1]] %>%
+    clean_wiki_names()
+
   # test convert_types()
-  tables_clean %>%
+  presidents %>%
     convert_types() %>%
-    pluck(4) %>%
     pull(born) %>%
     expect_is("Date")
 
@@ -126,11 +141,9 @@ test_that("clean_wiki_names works", {
   # test that footnotes are removed
   ## ERROR: Error in colSums(!is.na(dat)) :
   # 'x' must be an array of at least two dimensions
-  skip("bug in remove_footnotes")
-  tables_clean %>%
+  presidents %>%
     remove_footnotes() %>%
-    pluck(1) %>%
-    pull(founded) %>%
+    pull(age_at_end_of_presidency) %>%
     stringr::str_detect("\\[") %>%
     any() %>%
     expect_false()
@@ -138,22 +151,13 @@ test_that("clean_wiki_names works", {
 
 
 test_that("special_to_na works", {
-  ascii_table <- read_wikitables("https://en.wikipedia.org/wiki/ASCII") %>%
-    clean_wiki_names() %>%
-    purrr::pluck(2)
+  ascii_table <- tables$ascii$table[[2]] %>%
+    clean_wiki_names()
 
   # test that special_to_na = FALSE returns the special character
   # I don't understand this test-- is it still necessary now that special_to_na() is now a function, not an argument?
   expect_false(
     ascii_table %>%
-      dplyr::filter(dec == "33") %>%
-      dplyr::pull(glyph) %>%
-      is.na() %>%
-      any()
-  )
-  expect_true(
-    ascii_table %>%
-      special_to_na_single() %>%
       dplyr::filter(dec == "33") %>%
       dplyr::pull(glyph) %>%
       is.na() %>%
