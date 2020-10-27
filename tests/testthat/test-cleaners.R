@@ -25,49 +25,6 @@ test_that("read_wikitables works", {
 
 })
 
-test_that("clean_wiki_names works", {
-
-  colleges <- tables$colleges$table[[1]]
-  colleges1_clean <- clean_wiki_names(colleges)
-
-  # test clean_wiki_names()
-  # test that column names clean as expected
-  vars <- c("school", "location", "control", "type", "enrollment", "founded", "accreditation")
-  expect_equal(names(colleges1_clean), vars)
-
-  # test that correctly passes arguments to janitor::clean_names()
-  expect_equal(
-    names(clean_wiki_names(colleges, "all_caps")),
-    toupper(vars)
-  )
-
-  # test that footnotes are removed
-  expect_true(all(!stringr::str_detect(names(colleges1_clean), "\\[")))
-
-  # test that removes columns without name -- note: need to do
-  # remove footnotes before this works
-  ## NOTE-- remove footnotes not working for this
-  ascii <- tables$ascii$table[[1]]
-#  expect_lt(ncol(clean_wiki_names(ascii)), ncol(ascii))
-
-  # test that removes special characters in names
-  ## clean_wiki_names won't work with dummy data-- not sure why
-  dummy_data_1 <- tibble::tribble(
-    ~`first@`, ~second, ~third,
-    "?", "two", "three",
-    "_", "five", "7",
-    "N/A", "ten", "eleven"
-  )
-
-  expect_false(
-    dummy_data_1 %>%
-      clean_wiki_names() %>%
-      names() %>%
-      stringr::str_detect("\\@") %>%
-      any()
-  )
-
-})
 
 test_that("clean_rows works", {
   ascii <- tables$ascii$table[[1]]
@@ -108,6 +65,13 @@ test_that("empty_to_na works", {
 
 test_that("special_to_na works", {
 
+  dummy_data <- tibble::tribble(
+    ~first, ~second, ~third,
+    "?", "two", "three",
+    "_", "five", "7",
+    "N/A", "ten", "eleven"
+  )
+
   # test special_to_na()
   expect_false(
     dummy_data %>%
@@ -128,8 +92,7 @@ test_that("special_to_na works", {
 
 test_that("convert_types works", {
 
-  presidents <- tables$presidents$table[[1]] %>%
-    clean_wiki_names()
+  presidents <- tables$presidents$table[[1]]
 
   # test convert_types()
   presidents %>%
@@ -151,8 +114,7 @@ test_that("convert_types works", {
 
 
 test_that("special_to_na works", {
-  ascii_table <- tables$ascii$table[[2]] %>%
-    clean_wiki_names()
+  ascii_table <- tables$ascii$table[[2]]
 
   # test that special_to_na = FALSE returns the special character
   # I don't understand this test-- is it still necessary now that special_to_na() is now a function, not an argument?

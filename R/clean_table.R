@@ -1,32 +1,3 @@
-#' @name clean_wiki_names
-#' @title clean_wiki_names
-#' @importFrom dplyr %>%
-#' @param wiki_table A dataframe for which the column names will be cleaned
-#' @param ... arguments passed to \code{\link[janitor]{clean_names}}
-#' @return a cleaned dataframe
-#' @export
-#' @examples
-#' url <- "https://en.wikipedia.org/wiki/ASCII"
-#' raw <- read_wikitables(url)
-#'
-#' # clean
-
-clean_wiki_names <- function(wiki_table, ...) {
-  #removes all columns without a name
-  wiki_table <- wiki_table[!is.na(names(wiki_table))]
-  # remove footnotes (which are in brackets) from column names
-  names(wiki_table) <- stringr::str_remove_all(names(wiki_table), "\\[.*]")
-  # remove "(s)" from column names
-  names(wiki_table) <- stringr::str_remove_all(names(wiki_table), "\\(s\\)")
-  # remove special characters from column names
-  names(wiki_table) <- stringr::str_replace_all(names(wiki_table), "[^a-zA-Z0-9 ]", "_")
-  # convert to snake case
-  wiki_table <- janitor::clean_names(wiki_table, ...)
-
-  return(wiki_table)
-}
-
-
 #' @name empty_to_na
 #' @title empty_to_na
 #' @description Convert empty strings and special characters to NA

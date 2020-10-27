@@ -6,7 +6,7 @@
 #' @param replace_linebreak A character string denoting what
 #' linebreaks within dataframe cells are to be replaced with.
 #' Default is \code{' ,'}.
-#' @param ... arguments passed to \code{\link{read_wikitables}}
+#' @param ... arguments passed to \code{\link[rvest]{html_nodes}}
 #' @return An \code{xml_nodeset}
 #' @seealso \code{\link[rvest]{html_nodes}}
 #' @export
@@ -21,13 +21,17 @@ read_wikinodes <- function(url, replace_linebreak = ", ", ...) {
   wiki_nodes <- xml2::read_html(url)
 
   # replace line breaks in cells with comma
-  comma <- rvest::xml_node(xml2::read_xml(paste("<wiki_table><span>", "</span></wiki_table>", sep = replace_linebreak)),
-                           "span")
+  comma <- rvest::xml_node(
+    xml2::read_xml(
+      paste("<wiki_table><span>", "</span></wiki_table>", sep = replace_linebreak)
+    ),
+    "span"
+  )
   xml2::xml_add_sibling(rvest::xml_nodes(wiki_nodes, "br"), comma)
 
   # extract table from html
   wiki_nodes %>%
-    rvest::html_nodes("table.wikitable")
+    rvest::html_nodes("table.wikitable", ...)
 }
 
 
@@ -47,13 +51,17 @@ read_wikinodes <- function(url, replace_linebreak = ", ", ...) {
 #'     pull(table) %>%
 #'     purrr::pluck(1)
 #'  }
+#' raw <- read_wikitables(url, replace_linebreak = "|")
+#'
 
 read_wikitables <- function(url, ...) {
-  raw <- read_wikinodes(url)
+  raw <- read_wikinodes(url, ...)
   out <- rvest::html_attrs(raw) %>%
     dplyr::bind_rows()
   out$table <- raw %>%
-    rvest::html_table(fill = TRUE)
+    rvest::html_table(fill = TRUE) %>%
+    purrr::map(janitor::clean_names) %>%
+    purrr::map(tibble::as_tibble)
   out %>%
     dplyr::mutate(
       number = dplyr::row_number(),

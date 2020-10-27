@@ -78,6 +78,7 @@ episode_list %>%
 
 
 #### Add NAs to data
+
 `empty_to_na()` takes blank cells, solitary special characters, and any designated string, and converts them to `NA`. This can be utilized on the table for Bob's Burgers' current season, which has some "TBA" and "TBD" values for unreleased episodes. Using `empty_to_na()` we can convert these to `r NA`:
 
 ```{r}
@@ -88,6 +89,7 @@ tail(episodes, 3)
 ```
 
 #### Remove footnotes
+
 `remove_footnotes()` does just that! Wikipedia's footnotes are contained within brackets ([ ]), so this function removes anything contained in brackets (as well as the brackets themselves) from the data.
 
 ```{r}
@@ -97,6 +99,7 @@ head(episodes, 3)
 ```
 
 #### Convert data types
+
 `wikitablr` also does some initial parsing of data types. `convert_type()` can detect if a column is likely Date or numeric, and re-codes it as such:
 
 ```{r}

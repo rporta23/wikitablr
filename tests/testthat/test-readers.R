@@ -31,17 +31,6 @@ test_that("read_wikinodes works", {
       all()
   )
 
-  # test that linebreaks in cells are replaced with commas
-  expect_true(
-    raw %>%
-      pluck("linebreaks") %>%
-      pluck(1) %>%
-      rvest::html_table(fill = TRUE) %>%
-      pull(1) %>%
-      stringr::str_detect(",") %>%
-      any()
-  )
-
 })
 
 test_that("read_wikitables works", {
@@ -51,61 +40,68 @@ test_that("read_wikitables works", {
   # test that each item is a data frame
   expect_is(raw, "list")
   expect_length(raw, 3)
+  map(raw, expect_s3_class, "tbl_df")
+  map(raw, expect_s3_class, "data.frame")
+
+  raw %>%
+    pluck("presidents") %>%
+    pull(table) %>%
+    map(expect_s3_class, "tbl_df")
+
+  ## linebreak option
+  p1_default <- raw %>%
+    pluck("presidents") %>%
+    pull(table) %>%
+    pluck(1)
+
+  # test to detect "," in column 4
   expect_true(
-    raw %>%
-      map_chr(class) %>%
-      `==`("list") %>%
-      all()
+    p1_default %>%
+      pull(age_at_start_of_presidency) %>%
+      stringr::str_detect(",") %>%
+      any()
   )
+
+  # test to detect "," in column 5
   expect_true(
-    raw %>%
-      map(~map_chr(., class)) %>%
-      unlist() %>%
-      `==`("data.frame") %>%
-      all()
+    p1_default %>%
+      pull(age_at_end_of_presidency) %>%
+      stringr::str_detect(",") %>%
+      any()
   )
 
   # test that linebreaks in cells are replaced with "/" if replace_linebreak = "/ "
-  presidents_table_one <- urls[["presidents"]] %>%
+  p1_slash <- urls %>%
+    pluck("presidents") %>%
     read_wikitables(replace_linebreak = "/ ") %>%
-    clean_wiki_names() %>%
+    pull(table) %>%
     pluck(1)
 
   # test to detect "/" in column 4
   expect_true(
-    presidents_table_one %>%
-      pull(4) %>%
-      stringr::str_detect(",") %>%
+    p1_slash %>%
+      pull(age_at_start_of_presidency) %>%
+      stringr::str_detect("/ ") %>%
       any()
   )
 
   # test to detect "/" in column 5
   expect_true(
-    presidents_table_one %>%
-      pull(5) %>%
-      stringr::str_detect(",") %>%
-      any()
-  )
-
-  # replace_linebreak = ", " (default)
-  expect_true(
-    raw %>%
-      pluck("linebreaks") %>%
-      pluck(1) %>%
-      pull(1) %>%
-      stringr::str_detect(",") %>%
+    p1_slash %>%
+      pull(age_at_end_of_presidency) %>%
+      stringr::str_detect("/ ") %>%
       any()
   )
 
   # replace_linebreak = "/ "
-  linebreaks_table_2 <- urls[["linebreaks"]] %>%
+  linebreaks_table_2 <- urls %>%
+    pluck("linebreaks") %>%
     read_wikitables(replace_linebreak = "/ ") %>%
-    clean_wiki_names() %>%
+    pull(table) %>%
     pluck(2)
 
   # test to detect "/" in column 1
-  # FAILS
-  expect_false(
+  expect_true(
     linebreaks_table_2 %>%
       pull(1) %>%
       stringr::str_detect("/") %>%

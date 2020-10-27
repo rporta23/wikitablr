@@ -17,7 +17,7 @@ containing a table.}
 linebreaks within dataframe cells are to be replaced with.
 Default is \code{' ,'}.}
 
-\item{...}{arguments passed to \code{\link{read_wikitables}}}
+\item{...}{arguments passed to \code{\link[rvest]{html_nodes}}}
 }
 \value{
 An \code{xml_nodeset}
@@ -42,6 +42,8 @@ if (require(dplyr) && require(purrr)) {
     pull(table) \%>\%
     purrr::pluck(1)
  }
+raw <- read_wikitables(url, replace_linebreak = "|")
+
 }
 \seealso{
 \code{\link[rvest]{html_nodes}}
