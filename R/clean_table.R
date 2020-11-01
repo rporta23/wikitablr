@@ -9,9 +9,7 @@
 
 empty_to_na <- function(wiki_table){
   wiki_table %>%
-    dplyr::mutate_if(
-      is.character, list(~dplyr::na_if(., ""))
-    )
+    dplyr::mutate(across(where(is.character), list(~dplyr::na_if(., ""))))
 }
 
 #' @rdname empty_to_na
@@ -21,15 +19,13 @@ empty_to_na <- function(wiki_table){
 
 special_to_na <- function(wiki_table) {
   wiki_table %>%
-    dplyr::mutate_if(
-      is.character,
+    dplyr::mutate(across(where(is.character),
       stringr::str_replace_all,
-      pattern = "\\A[^a-zA-Z0-9]{1}$", replacement = "<special_char/>"
+      pattern = "\\A[^a-zA-Z0-9]{1}$", replacement = "<special_char/>")
     ) %>%
-    dplyr::mutate_if(
-      is.character,
+    dplyr::mutate(across(where(is.character),
       list(~dplyr::na_if(., "<special_char/>"))
-    )
+    ))
 }
 
 
