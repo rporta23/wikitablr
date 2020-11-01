@@ -60,7 +60,7 @@ clean_rows <- function(wiki_table) {
   wiki_table <- wiki_table[rowSums(wiki_table[-1] != wiki_table[[2]], na.rm = TRUE) != 0,]
 
   wiki_table <- wiki_table %>%
-    dplyr::mutate_all(as.character)
+    dplyr::mutate(across(everything(), as.character))
 
     tryCatch({i <- 1
 
@@ -90,12 +90,12 @@ clean_rows <- function(wiki_table) {
 convert_types <- function(wiki_table) {
   suppressWarnings(
     wiki_table <- wiki_table %>%
-      dplyr::mutate_all(as.character)%>%
-      dplyr::mutate_if(~all(!is.na(lubridate::dmy(.x))), lubridate::dmy)%>%
-      dplyr::mutate_if(~all(!is.na(lubridate::mdy(.x))), lubridate::mdy)%>%
-      dplyr::mutate_if(~all(!is.na(lubridate::ymd(.x))), lubridate::ymd)%>%
-      dplyr::mutate_if(~class(.x) == "character" &&
-                         all(!stringr::str_detect(.x, "[a-zA-Z]"), na.rm = TRUE), readr::parse_number))
+      dplyr::mutate(across(everything(), as.character))%>%
+      dplyr::mutate(across(where(~all(!is.na(lubridate::dmy(.x)))), lubridate::dmy))%>%
+      dplyr::mutate(across(where(~all(!is.na(lubridate::mdy(.x)))), lubridate::mdy))%>%
+      dplyr::mutate(across(where(~all(!is.na(lubridate::ymd(.x)))), lubridate::ymd))%>%
+      dplyr::mutate(across(where(~class(.x) == "character" &&
+                         all(!stringr::str_detect(.x, "[a-zA-Z]"), na.rm = TRUE)), readr::parse_number)))
 
   return(wiki_table)
 
