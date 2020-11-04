@@ -7,9 +7,9 @@
 #' @examples
 #' empty_to_na(data.frame(x = ""))
 
-empty_to_na <- function(wiki_table){
+empty_to_na <- function(wiki_table, to_na = ""){
   wiki_table %>%
-    dplyr::mutate(across(where(is.character), list(~dplyr::na_if(., ""))))
+    dplyr::mutate(across(where(is.character), list(~dplyr::na_if(to_na))))
 }
 
 #' @rdname empty_to_na

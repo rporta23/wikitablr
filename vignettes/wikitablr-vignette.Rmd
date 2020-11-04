@@ -37,19 +37,27 @@ bobs_burgers
 
 Each cleaning function takes in an individual table and outputs a modified table. We can apply the cleaning functions to an individual table by first extracting the table, or we can map the cleaning functions over a list of tables.
 
-#### Clean column names
+#### Add NAs to data
 
-`clean_wiki_names()` cleans the column names of a dataframe; it removes footnotes and special characters, and converts letter cases. `clean_wiki_names()` utilizes the functionality of `janitor::clean_names()` and can convert to any case (default is snake_case).
+`empty_to_na()` takes blank cells, solitary special characters, and any designated string, and converts them to `NA`. This can be utilized on the table for Bob's Burgers' current season, which has some "TBA" and "TBD" values for unreleased episodes. Using `empty_to_na()` we can convert these to `r NA`:
 
-If we want to work with one table individually, we can extract it and then apply `clean_wiki_names()`. For example, if we want to clean the names of the 11th table on the Bob's Burgers page, it will look like this.
+If we want to work with one table individually, we can extract it and then apply `empty_to_na()`. For example, if we want to clean the names of the 11th table on the Bob's Burgers page, it will look like this.
 
 ```{r}
 # extract table 11
 episodes <- bobs_burgers %>%
    pull(table) %>%
-   pluck(11) 
+   pluck(12) 
 episodes
 ```
+
+```{r}
+# not sure which table has "TBA" and "TBD"
+episodes <- empty_to_na(episodes, to_na = c("TBA", "TBD"))
+
+tail(episodes, 3)
+```
+
 ```{r}
 # clean names
 episodes_clean <- clean_wiki_names(episodes)
@@ -76,17 +84,6 @@ episode_list %>%
   )
 ```
 
-
-#### Add NAs to data
-
-`empty_to_na()` takes blank cells, solitary special characters, and any designated string, and converts them to `NA`. This can be utilized on the table for Bob's Burgers' current season, which has some "TBA" and "TBD" values for unreleased episodes. Using `empty_to_na()` we can convert these to `r NA`:
-
-```{r}
-# not sure which table has "TBA" and "TBD"
-episodes <- empty_to_na(episodes, to_na = c("TBA", "TBD"))
-
-tail(episodes, 3)
-```
 
 #### Remove footnotes
 
