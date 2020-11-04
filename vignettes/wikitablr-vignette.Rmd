@@ -41,7 +41,7 @@ Each cleaning function takes in an individual table and outputs a modified table
 
 `empty_to_na()` takes blank cells, solitary special characters, and any designated string, and converts them to `NA`. This can be utilized on the table for Bob's Burgers' current season, which has some "TBA" and "TBD" values for unreleased episodes. Using `empty_to_na()` we can convert these to `r NA`:
 
-If we want to work with one table individually, we can extract it and then apply `empty_to_na()`. For example, if we want to clean the names of the 11th table on the Bob's Burgers page, it will look like this.
+If we want to work with one table individually, we can extract it and then apply `empty_to_na()`. For example, if we want to convert "TBA" and "TBD" values to `r NA`for the 12th table on the Bob's Burgers page, it will look like this.
 
 ```{r}
 # extract table 11
@@ -52,27 +52,22 @@ episodes
 ```
 
 ```{r}
-# not sure which table has "TBA" and "TBD"
+# convert TBA and TBD values to NA
+# Error: Problem with `mutate()` input `..1`. x argument "y" is missing, with no default ℹ Input `..1` is `across(where(is.character), list(~dplyr::na_if(to_na)))`.
 episodes <- empty_to_na(episodes, to_na = c("TBA", "TBD"))
 
 tail(episodes, 3)
 ```
 
-```{r}
-# clean names
-episodes_clean <- clean_wiki_names(episodes)
-episodes_clean
-```
-
-If we want to clean the names of all of the tables that list episodes in a season, we could do so by mapping `clean_wiki_names()` over all of the tables. This will output a table with an added column `clean_table` that contains the modified tables with clean names.
+If we want to convert TBA and TBD values to `r NA` for all of the tables that list episodes in a season, we could do so by mapping `empty_to_na()` over all of the tables. This will output a table with an added column `clean_table` that contains the modified tables.
 ```{r}
 # filter only tables that contain episodes
 episode_list <- bobs_burgers %>%
   filter(stringr::str_detect(class, "wikiepisodetable"))
 
-# map clean_wiki_names() over all tables
+# map empty_to_na() over all tables
 episode_list %>%
-  mutate(clean_table = map(table, clean_wiki_names))
+  mutate(clean_table = map(table, empty_to_na(to_na = c("TBA", "TBD"))))
 ```
 
 ```{r}

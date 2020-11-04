@@ -42,30 +42,25 @@ You can install the development version from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("jkeast/wikitablr")
+devtools::install_github("baumer-lab/wikitablr")
 ```
 ## Example
 
-`wikitablr` allows you to either read in and clean your code all at once:
+The first step is to read in all tables on a given wikipedia page using `read_wikitables()`. The input is a url, and the output is a data frame including the tables on the page as well as some additional information about each tables. 
 
 ```{r}
-#read in first table on page
-head(read_wiki_table("https://en.wikipedia.org/wiki/List_of_colleges_and_universities_in_Massachusetts"))
+#read in tables
+head(read_wikitables("https://en.wikipedia.org/wiki/List_of_colleges_and_universities_in_Massachusetts"))
 ```
 
-Or use its cleaning functions seperately:
+The next step is to clean the tables by either extracting a single table and applying cleaning functions individually, or mapping the cleaning functions over all of the tables.
 
 ```{r}
-#read in first table from url without cleaning it
-example <- read_wiki_raw("https://en.wikipedia.org/wiki/List_of_colleges_and_universities_in_Massachusetts")
-head(example)
-```
-
-```{r}
-#clean names of table
-example <- clean_wiki_names(example)
-
-head(example)
+# extract table 1
+table1 <- read_wikitables("https://en.wikipedia.org/wiki/List_of_colleges_and_universities_in_Massachusetts") %>%
+   pull(table) %>%
+   pluck(1) 
+table1
 ```
 
 ```{r}
@@ -73,17 +68,7 @@ head(example)
 head(remove_footnotes(example))
 ```
 
-#### Read all tables
 
-`wikitablr` also allows you to read in and clean all tables on a page at once, putting them into a list.
-
-This is the first table on the wikipedia page "List of World Series champions":
-
-```{r}
-example2 <- read_all_tables("https://en.wikipedia.org/wiki/List_of_World_Series_champions")
-
-head(example2[[1]])
-```
 
 and the rest:
 ```{r}
