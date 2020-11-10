@@ -9,7 +9,7 @@
 
 empty_to_na <- function(wiki_table, to_na = ""){
   wiki_table %>%
-    dplyr::mutate(across(where(is.character), list(~dplyr::na_if(to_na))))
+    dplyr::mutate(across(where(is.character), ~dplyr::na_if(to_na)))
 }
 
 #' @rdname empty_to_na

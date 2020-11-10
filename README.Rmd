@@ -46,11 +46,12 @@ devtools::install_github("baumer-lab/wikitablr")
 ```
 ## Example
 
-The first step is to read in all tables on a given wikipedia page using `read_wikitables()`. The input is a url, and the output is a data frame including the tables on the page as well as some additional information about each tables. 
+The first step is to read in all tables on a given wikipedia page using `read_wikitables()`. The input is a url, and the output is a data frame including the tables on the page as well as some additional information about each table. 
 
 ```{r}
 #read in tables
-head(read_wikitables("https://en.wikipedia.org/wiki/List_of_colleges_and_universities_in_Massachusetts"))
+colleges <- read_wikitables("https://en.wikipedia.org/wiki/List_of_colleges_and_universities_in_Massachusetts")
+head(colleges)
 ```
 
 The next step is to clean the tables by either extracting a single table and applying cleaning functions individually, or mapping the cleaning functions over all of the tables.
@@ -65,17 +66,13 @@ table1
 
 ```{r}
 #remove footnotes from table
-head(remove_footnotes(example))
+head(remove_footnotes(table1))
 ```
 
-
-
-and the rest:
 ```{r}
-head(example2[[2]])
-
-head(example2[[3]])
-
-head(example2[[4]])
+# remove footnotes from all tables
+colleges %>%
+  mutate(clean_table = map(table, remove_footnotes))
 ```
+
 
